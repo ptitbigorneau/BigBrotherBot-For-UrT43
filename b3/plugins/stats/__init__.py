@@ -58,60 +58,6 @@ class StatsPlugin(b3.plugin.Plugin):
         """
         Load plugin configuration.
         """
-        commands_options = []
-        if self.config.has_section("commands"):
-            try:
-                commands_options = self.config.options("commands")
-            except:
-                pass
-
-        def load_command_level(cmd_name):
-            """
-            Load a command level.
-            :param cmd_name: The command name
-            """
-            matching_options = [x for x in commands_options if x.startswith('%s-' % cmd_name)]
-            if len(matching_options):
-                option_name = matching_options[0]
-            else:
-                option_name = cmd_name
-            return self.config.getint('commands', option_name)
-
-        try:
-            self.mapstatslevel = load_command_level('mapstats')
-        except NoOptionError:
-            pass
-        except Exception, e:
-            self.error(e)
-
-        self.info('commands::mapstats level: %s', self.mapstatslevel)
-
-        try:
-            self.testscorelevel = load_command_level('testscore')
-        except NoOptionError:
-            pass
-        except Exception, e:
-            self.error(e)
-
-        self.info('commands::testscore level: %s', self.testscorelevel)
-
-        try:
-            self.topstatslevel = load_command_level('topstats')
-        except NoOptionError:
-            pass
-        except Exception, e:
-            self.error(e)
-
-        self.info('commands::topstats level: %s', self.topstatslevel)
-
-        try:
-            self.topxplevel = load_command_level('topxp')
-        except NoOptionError:
-            pass
-        except Exception, e:
-            self.error(e)
-
-        self.info('commands::topxp level: %s', self.topxplevel)
 
         try:
             self.startPoints = self.config.getint('settings', 'startPoints')
@@ -188,6 +134,8 @@ class StatsPlugin(b3.plugin.Plugin):
         self.registerEvent('EVT_GAME_EXIT', self.onShowAwards)
         self.registerEvent('EVT_GAME_MAP_CHANGE', self.onShowAwards)
         self.registerEvent('EVT_GAME_ROUND_START', self.onRoundStart)
+        if self.console.gameName == "iourt43":
+            self.registerEvent('EVT_ASSIST', self.onAssist)
 
     ####################################################################################################################
     #                                                                                                                  #
@@ -221,7 +169,8 @@ class StatsPlugin(b3.plugin.Plugin):
                     c.setvar(self, 'teamKills', 0)
                     c.setvar(self, 'kills', 0)
                     c.setvar(self, 'deaths', 0)
-
+                    if self.console.gameName == "iourt43":
+                        c.setvar(self, 'assists', 0)
                     if self.resetscore:
                         # skill points are reset at the beginning of each map
                         c.setvar(self, 'pointsLost', 0)
@@ -316,6 +265,14 @@ class StatsPlugin(b3.plugin.Plugin):
 
         self.updateXP(killer)
         self.updateXP(victim)
+		
+    def onAssist(self, event):
+
+        client = event.client
+        victim = event.target
+        attacker = event.data
+        
+        client.var(self, 'assists', 0).value += 1
 
     def updateXP(self, sclient):
         """
@@ -366,12 +323,22 @@ class StatsPlugin(b3.plugin.Plugin):
                 return
         else:
             sclient = client
+			
+        if self.console.gameName == "iourt43":
 
-        message = '^3Stats ^7[ %s ^7] K ^2%s ^7D ^3%s ^7TK ^1%s ^7Dmg ^5%s ^7Skill ^3%1.02f ^7XP ^6%s' % \
-                  (sclient.exactName, sclient.var(self, 'kills', 0).value, sclient.var(self, 'deaths', 0).value,
-                   sclient.var(self, 'teamKills', 0).value, sclient.var(self, 'damageHit', 0).value,
-                   round(sclient.var(self, 'points', self.startPoints).value, 2),
-                   round(sclient.var(self, 'oldexperience', 0).value + sclient.var(self, 'experience', 0).value, 2))
+            message = '^3Stats ^7[ %s ^7] K ^2%s ^7D ^3%s ^7A ^5%s ^7TK ^1%s ^7Dmg ^5%s ^7Skill ^3%1.02f ^7XP ^6%s' % \
+                      (sclient.exactName, sclient.var(self, 'kills', 0).value, sclient.var(self, 'deaths', 0).value,
+                       sclient.var(self, 'assists', 0).value ,sclient.var(self, 'teamKills', 0).value, sclient.var(self, 'damageHit', 0).value,
+                       round(sclient.var(self, 'points', self.startPoints).value, 2),
+                       round(sclient.var(self, 'oldexperience', 0).value + sclient.var(self, 'experience', 0).value, 2))
+					   
+        else:
+
+            message = '^3Stats ^7[ %s ^7] K ^2%s ^7D ^3%s ^7TK ^1%s ^7Dmg ^5%s ^7Skill ^3%1.02f ^7XP ^6%s' % \
+                      (sclient.exactName, sclient.var(self, 'kills', 0).value, sclient.var(self, 'deaths', 0).value,
+                       sclient.var(self, 'teamKills', 0).value, sclient.var(self, 'damageHit', 0).value,
+                       round(sclient.var(self, 'points', self.startPoints).value, 2),
+                       round(sclient.var(self, 'oldexperience', 0).value + sclient.var(self, 'experience', 0).value, 2))
 
         cmd.sayLoudOrPM(client, message)
 

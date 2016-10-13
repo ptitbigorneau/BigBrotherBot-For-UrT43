@@ -46,6 +46,8 @@ Game servers supported:
 - Soldier of Fortune 2
 - World of Padman
 
+- *Add Urban Terror 4.3
+
 ## Links to our online presence
 
 * [Official website](http://www.bigbrotherbot.net)
