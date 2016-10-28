@@ -45,9 +45,6 @@ class StatsPlugin(b3.plugin.Plugin):
         """
         b3.plugin.Plugin.__init__(self, console, config)
         self.mapstatslevel = 0
-        self.testscorelevel = 0
-        self.topstatslevel = 2
-        self.topxplevel = 2
         self.startPoints = 100
         self.resetscore = False
         self.resetxp = False
@@ -126,7 +123,9 @@ class StatsPlugin(b3.plugin.Plugin):
                 func = getCmd(self, cmd)
                 if func:
                     self._adminPlugin.registerCommand(self, cmd, level, func, alias)
-
+        
+        self.mapstatslevel = self._adminPlugin._commands["mapstats"].level[0]
+    
         self.registerEvent('EVT_CLIENT_DAMAGE_TEAM', self.onDamageTeam)
         self.registerEvent('EVT_CLIENT_KILL_TEAM', self.onTeamKill)
         self.registerEvent('EVT_CLIENT_KILL', self.onKill)
@@ -134,6 +133,7 @@ class StatsPlugin(b3.plugin.Plugin):
         self.registerEvent('EVT_GAME_EXIT', self.onShowAwards)
         self.registerEvent('EVT_GAME_MAP_CHANGE', self.onShowAwards)
         self.registerEvent('EVT_GAME_ROUND_START', self.onRoundStart)
+		
         if self.console.gameName == "iourt43":
             self.registerEvent('EVT_ASSIST', self.onAssist)
 
@@ -265,7 +265,7 @@ class StatsPlugin(b3.plugin.Plugin):
 
         self.updateXP(killer)
         self.updateXP(victim)
-		
+        
     def onAssist(self, event):
 
         client = event.client
@@ -323,7 +323,7 @@ class StatsPlugin(b3.plugin.Plugin):
                 return
         else:
             sclient = client
-			
+            
         if self.console.gameName == "iourt43":
 
             message = '^3Stats ^7[ %s ^7] K ^2%s ^7D ^3%s ^7A ^5%s ^7TK ^1%s ^7Dmg ^5%s ^7Skill ^3%1.02f ^7XP ^6%s' % \
@@ -331,7 +331,7 @@ class StatsPlugin(b3.plugin.Plugin):
                        sclient.var(self, 'assists', 0).value ,sclient.var(self, 'teamKills', 0).value, sclient.var(self, 'damageHit', 0).value,
                        round(sclient.var(self, 'points', self.startPoints).value, 2),
                        round(sclient.var(self, 'oldexperience', 0).value + sclient.var(self, 'experience', 0).value, 2))
-					   
+                       
         else:
 
             message = '^3Stats ^7[ %s ^7] K ^2%s ^7D ^3%s ^7TK ^1%s ^7Dmg ^5%s ^7Skill ^3%1.02f ^7XP ^6%s' % \

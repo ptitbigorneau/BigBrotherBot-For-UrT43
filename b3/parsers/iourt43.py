@@ -92,7 +92,7 @@
 #                                   and correctly set racefree client attribute
 # 29/06/2015 - 1.32   - Fenix     - fixed onSay regular expression not parsing lines with empty say text
 # 30/06/2015 - 1.33   - Fenix     - get client auth login from Clientuserinfo line if available
-#                                 - removed notoriety attribute in Iourt43Client: useless in UrT4.2
+#                                 - removed notoriety attribute in Iourt42Client: useless in UrT4.2
 #                                 - improved logging
 # 21/07/2015 - 1.34   - Fenix     - added a patch which deny connection to clients whose nickname is longer than 32
 #                                   characters (read more: https://github.com/BigBrotherBot/big-brother-bot/issues/346)
@@ -253,7 +253,7 @@ class Iourt43Client(Client):
             return False
 
     def __str__(self):
-        return "Client42<@%s:%s|%s:\"%s\":%s>" % (self.id, self.guid, self.pbid, self.name, self.cid)
+        return "Client43<@%s:%s|%s:\"%s\":%s>" % (self.id, self.guid, self.pbid, self.name, self.cid)
 
 
 class Iourt43Parser(Iourt41Parser):
@@ -659,7 +659,7 @@ class Iourt43Parser(Iourt41Parser):
         self.Events.createEvent('EVT_CLIENT_THAWOUT_STARTED', 'Event client thawout started')
         self.Events.createEvent('EVT_CLIENT_THAWOUT_FINISHED', 'Event client thawout finished')
         self.Events.createEvent('EVT_CLIENT_MELTED', 'Event client melted')
-
+        # add UrT 4.3 specific events
         self.EVT_ASSIST = self.Events.createEvent('EVT_ASSIST', 'Event assist')
 
         self._eventMap['hotpotato'] = self.getEventID('EVT_GAME_FLAG_HOTPOTATO')
@@ -758,11 +758,11 @@ class Iourt43Parser(Iourt41Parser):
         self.info("Allow userinfo string overflow : %s" % ('yes' if self._allow_userinfo_overflow else 'no'))
 
         if self._allow_userinfo_overflow:
-            self.info("NOTE: due to a bug in UrT 4.2 gamecode it is possible to exploit the maximum client name length "
+            self.info("NOTE: due to a bug in UrT 4.3 gamecode it is possible to exploit the maximum client name length "
                       "and generate a userinfo string longer than the imposed limits: clients connecting with nicknames "
                       "longer than 32 characters will be automatically kicked by B3 in order to prevent any sort of error")
         else:
-            self.info("NOTE: due to a bug in UrT 4.2 gamecode it is possible to exploit the maximum client name length "
+            self.info("NOTE: due to a bug in UrT 4.3 gamecode it is possible to exploit the maximum client name length "
                       "and generate a userinfo string longer than the imposed limits: B3 will truncate nicknames of clients "
                       "which are longer than 32 characters")
 
@@ -832,7 +832,7 @@ class Iourt43Parser(Iourt41Parser):
 
                 # v 1.10.5 => https://github.com/BigBrotherBot/big-brother-bot/issues/346
                 if len(bclient['name']) > 32:
-                    self.debug("UrT4.2 bug spotted! %s [GUID: '%s'] [FSA: '%s'] has a too long "
+                    self.debug("UrT4.3 bug spotted! %s [GUID: '%s'] [FSA: '%s'] has a too long "
                                "nickname (%s characters)", bclient['name'], guid, fsa, len(bclient['name']))
                     if self._allow_userinfo_overflow:
                         x = bclient['name'][0:32]
