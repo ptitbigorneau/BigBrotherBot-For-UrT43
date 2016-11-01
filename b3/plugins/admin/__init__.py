@@ -1347,6 +1347,11 @@ class AdminPlugin(b3.plugin.Plugin):
         """
         [<command|level>] - get info on how to use a command, you can use *<command> for partial matches
         """
+
+        thread.start_new_thread(self.dohelp, (client, data, cmd))
+
+    def dohelp(self, client, data, cmd):
+    
         commands = []
         if re.match(r'^[0-9]+$', data):
             mlevel = int(data)
