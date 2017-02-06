@@ -292,6 +292,22 @@ class Poweradminurt43Plugin(Poweradminurt41Plugin):
         elif data.lower() == 'off':
             self.console.setCvar('g_hardcore', 0)
             self.console.say('^7Hardcore: ^1OFF')
+
+    def cmd_parandomorder(self, data, client, cmd=None):
+        """
+        Set the g_randomorder <on/off>
+        (You can safely use the command without the 'pa' at the beginning)
+        """
+        if not data or data.lower() not in ('on', 'off'):
+            client.message('^7invalid or missing data, try !help parandomorder')
+            return
+
+        if data.lower() == 'on':
+            self.console.setCvar('g_randomorder', 1)
+            self.console.say('^7Randomorder: ^2ON')
+        elif data.lower() == 'off':
+            self.console.setCvar('g_randomorder', 0)
+            self.console.say('^7Randomorder: ^1OFF')
             
     def cmd_pastamina(self, data, client, cmd=None):
         """
@@ -548,7 +564,7 @@ class Poweradminurt43Plugin(Poweradminurt41Plugin):
         try:
             self._teamred = 0
             self._teamblue = 0
-            testbot = False
+
             data = self.console.write('players')
             for line in data.split('\n')[3:]:
                 #m = re.match(self.console._rePlayerScore, line.strip())
@@ -561,12 +577,7 @@ class Poweradminurt43Plugin(Poweradminurt41Plugin):
                     self._teamred += 1
                 elif "TEAM:BLUE" in line:
                     self._teamblue += 1
-                elif "[connecting]" in line:
-                    testbot = True
 
-            if testbot:
-                self._teamred = len(self.console.getCvar('g_redteamlist').getString())
-                self._teamblue = len(self.console.getCvar('g_blueteamlist').getString())
             return True
         except Exception:
             return False
