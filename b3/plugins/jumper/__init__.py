@@ -272,7 +272,7 @@ class JumperPlugin(b3.plugin.Plugin):
     powerAdminUrtPlugin = None
     serverSideDemoPlugin = None
 
-    requiresParsers = ['iourt42']
+    requiresParsers = ['iourt42', 'iourt43']
     loadAfterPlugins = ['poweradminurt', 'urtserversidedemo']
 
     _maps_data_from_api = {}
