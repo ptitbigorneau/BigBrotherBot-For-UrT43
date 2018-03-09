@@ -2,10 +2,14 @@
 
 **********
 
-![status: inactive](https://img.shields.io/badge/status-inactive-red.svg)
+![status: seeking maintainer](https://img.shields.io/badge/status-seeking%20maintainer-yellow.svg)
 
 ```
-This project is NO LONGER actively maintained! It is provided 'as is' in its current state!
+This project is NO LONGER actively maintained. It is provided 'as is' in its current state! 
+If you wish to apply as project maintainer please contact B3 development team by opening a 
+topic on the B3 forums.
+
+B3 Development Team
 ```
 
 Big Brother Bot (B3) is a complete and total server administration package for online games. It is the prefered ingame
@@ -38,6 +42,7 @@ Game servers supported:
 - Insurgency
 - Urban Terror 4.1 (ioUrT)
 - Urban Terror 4.2
+- Urban Terror 4.3
 - Medal of Honor 2010
 - Medal of Honor Warfighter
 - Open Arena
@@ -46,12 +51,10 @@ Game servers supported:
 - Soldier of Fortune 2
 - World of Padman
 
-- *Add Urban Terror 4.3
-
 ## Links to our online presence
 
-* [Official website](http://www.bigbrotherbot.net)
-* [Forums](http://forum.bigbrotherbot.net)
+* [Master server](http://master.bigbrotherbot.net/)
+* [Bug tracker](https://github.com/BigBrotherBot/big-brother-bot/issues)
 * [Documentation](http://wiki.bigbrotherbot.net/)
 
 
@@ -60,25 +63,12 @@ Game servers supported:
 Please refer to our documentation wiki as linked above for a full manual.
 
 
-## For developers
-
-B3 is an extremely extensible software. Support for new online games can be added quite easily by creating new parsers
-(if the game server meets the necessary requirements), and B3 functionalities can be enhanced by means of plugins. You 
-can browse B3 code reference [here](http://doc.bigbrotherbot.net/): it will give you a general idea on the structure of B3 
-core and B3 plugins. You can also find some plugins and parsers examples in the _example_ directory. If you need some 
-help in developing your plugins or creating new parsers you can make use of our  [forums](http://forum.bigbrotherbot.net) 
-or alternatively you can join our chat on gitter:
-
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/BigBrotherBot/big-brother-bot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-
-
 ## Previous and Current Developers (Hall of Fame)
 
-_[ThorN], [xlr8or], ttlogic, [Courgette], [Bakes], [spacepig], [Durzo], eire.32, [grosbedo], [Freelander], [82ndAB.Bravo17], 
-[Just a baka], [Fenix], [Ozon]_ and a big thanks to you, who has offered us snippets of code and improvements on an 
+_[ThorN], [xlr8or], ttlogic, [Courgette], [Fenix], [Bakes], [spacepig], [Durzo], eire.32, [grosbedo], [Freelander], [82ndAB.Bravo17], 
+[Just a baka], [Ozon]_ and a big thanks to you, who has offered us snippets of code and improvements on an 
 incidental basis. Without you B3 wouldn't be this intelligent!
 
-[![Build Status](https://travis-ci.org/BigBrotherBot/big-brother-bot.svg?branch=master)](https://travis-ci.org/BigBrotherBot/big-brother-bot) 
 [![Requirements Status](https://requires.io/github/BigBrotherBot/big-brother-bot/requirements.svg?branch=master)](https://requires.io/github/BigBrotherBot/big-brother-bot/requirements/?branch=master)
 [![Code Health](https://landscape.io/github/BigBrotherBot/big-brother-bot/master/landscape.svg?style=flat)](https://landscape.io/github/BigBrotherBot/big-brother-bot/master)
 [![Coverage Status](https://coveralls.io/repos/BigBrotherBot/big-brother-bot/badge.svg?branch=master)](https://coveralls.io/r/BigBrotherBot/big-brother-bot?branch=master)

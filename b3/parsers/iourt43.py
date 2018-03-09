@@ -1,102 +1,26 @@
-#
-# BigBrotherBot(B3) (www.bigbrotherbot.net)
-# Copyright (C) 2012 Thomas LEVEIL <courgette@bigbrotherbot.net>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-#
-# CHANGELOG
-#
-# 24/07/2012 - 0.0    - Courgette - parser created
-# 08/08/2012 - 1.0    - Courgette - new authentication system using the Frozen Sand Account if available
-# 08/08/2012 - 1.1    - Courgette - fix error when computing Hit damage. Until we got real value, the default value : 15
-#                                   is returned for all weapons and all hit locations.
-# 09/08/2012 - 1.2    - Courgette - make sure the game is UrT 4.2 or fail to start
-# 09/08/2012 - 1.2.1  - Courgette - disabling authentication using the /rcon auth-whois command response
-# 12/08/2012 - 1.3    - Courgette - patches the Spamcontrol plugin to make it aware of radio spam
-# 14/09/2012 - 1.4    - Courgette - change kick and tempban commands so them give the reason
-# 04/10/2012 - 1.5    - Courgette - update for UrT 4.2.002 new auth system with Frozen Sand Account and auth-key
-# 04/10/2012 - 1.5.1  - Courgette - fix kick and tempban when used with a reason
-# 10/10/2012 - 1.5.2  - Courgette - support names with blank characters
-# 24/10/2012 - 1.6    - Courgette - new: settings to ban with the Frozen Sand auth system
-# 09/11/2012 - 1.7    - Courgette - new: support new jump game type with code 9
-# 15/11/2012 - 1.7.1  - Courgette - fix: banning with the Frozen Sand auth system now works with servers set to auth
-#                                   private or notoriety mode
-# 26/11/2012 - 1.8    - Courgette - protect some of the Client object property
-# 26/11/2012 - 1.9    - Courgette - fix authentication for connecting player Frosen Sand Account is uniquely known
-#                                   in the B3 database
-# 07/12/2012 - 1.10   - Courgette - add new events : EVT_CLIENT_JUMP_TIMER_START, EVT_CLIENT_JUMP_TIMER_STOP,
-#                                   EVT_CLIENT_POS_SAVE, EVT_CLIENT_POS_LOAD and EVT_CLIENT_SURVIVOR_WINNER which can be
-#                                   used by plugins
-# 08/12/2012 - 1.10.1 - Courgette - fix EVT_CLIENT_JUMP_TIMER_START and EVT_CLIENT_JUMP_TIMER_STOP events when no
-#                                   location name is provided
-# 22/12/2012 - 1.11   - Courgette - update for UrT 4.2.009 release. adds UT_MOD_SMITED, UT_MOD_GLOCK and fix constants
-#                                   values for some of the UT_MOD_* constants
-# 08/01/2013 - 1.11.1 - Courgette - fix EVT_SURVIVOR_WIN event
-# 08/04/2013 - 1.12   - Courgette - add EVT_BOMB_EXPLODED event
-# 05/07/2012 - 1.13   - Fenix     - added support for new UrT 4.2.013 weapons
-#                                 - correctly parse ClientJumpRunStarted and ClientJumpRunStopped
-#                                 - renamed event EVT_CLIENT_JUMP_TIMER_START into EVT_CLIENT_JUMP_RUN_START and add
-#                                   attempt_num and attempt_max info to the event data
-#                                 - renamed event EVT_CLIENT_JUMP_TIMER_STOP into EVT_CLIENT_JUMP_RUN_STOP and add
-#                                   attempt_num and attempt_max info to the event data
-#                                 - added parsing of ClientJumpRunCanceled (generate EVT_CLIENT_JUMP_RUN_CANCEL)
-#                                 - fixed Client(Load|Save)Position parsing
-# 14/07/2013 - 1.14   - Courgette - add hitlocation constants : HL_HEAD, HL_HELMET and HL_TORSO
-# 15/07/2013 - 1.15   - Fenix     - added missing hitlocation constants
-#                                 - added damage table
-#                                 - restored function _get_damage_points
-# 25/07/2013 - 1.16   - Fenix     - fixed means of death ids
-#                                 - added hit2kill code translation for UT_MOD_KICKED
-# 30/07/2013 - 1.17   - Fenix     - added EVT_CLIENT_GOTO
-# 27/09/2013 - 1.18   - Courgette - added EVT_VOTE_PASSED and EVT_VOTE_FAILED
-# 09/12/2013 - 1.19   - Fenix     - added EVT_CLIENT_SPAWN and EVT_FLAG_RETURN_TIME
-# 11/12/2013 - 1.20   - Courgette - fix: players with ':' in their name can't run commands ('UrT bug spotted' showing
-#                                   up in the log)
-# 13/01/2014 - 1.21   - Fenix     - PEP8 coding standards
-#                                 - correctly set the client bot flag upon new client connection
-# 12/01/2014 - 1.22   - Fenix     - updated Radio call regex: allow to parse log lines with missing radio location
-#                                 - removed duplicated regular expression (Radio)
-#                                 - increase parser version (1.22) and updated changelog
-# 22/02/2014 - 1.23   - Courgette - fix issue #162 - 'None' string is written to the database client.pbid column
-#                                 - fix auth-whois rcon response not being parsed properly since it has a newline char
-# 14/04/2014 - 1.24   - Fenix     - use getEvent_id method to obtain event ids: remove some warnings
-#                                 - use integer value while calling tempban method: remove another silly warning
-#                                 - rewritten regular expressions on multiline: respect PEP8 line length constraint
-#                                 - remove duplicate reference of event ids
-# 02/05/2014 - 1.24.1 - Fenix     - correctly initialized spamcontrol_plugin class attribute
-# 02/06/2014 - 1.24.2 - Fenix     - fixed reColor regex stripping whitespaces between words
-# 03/08/2014 - 1.25   - Fenix     - syntax cleanup
-#                                 - reformat changelog
-# 14/09/2014 - 1.26   - Fenix     - added FreezeTag events: EVT_CLIENT_FREEZE, EVT_CLIENT_THAWOUT_STARTED,
-#                                   EVT_CLIENT_THAWOUT_FINISHED, EVT_CLIENT_MELTED
-#                                 - set client.state to b3.STATE_ALIVE on Client Spawn
-# 17/09/2014 - 1.26.1 - Fenix     - added missing Freeze Tag gametype declaration (10) in defineGameType()
-# 02/10/2014 - 1.27   - Fenix     - fixed regression introduced in 1.25
-# 12/12/2014 - 1.28   - Fenix     - increased chat line length to comply with the new HUD setting (4.2.021)
-# 25/01/2015 - 1.29   - Fenix     - patch the b3.clients.getByMagic method so it's possible to lookup players using their
-#                                   auth login
-# 16/04/2015 - 1.30   - Fenix     - uniform class variables (dict -> variable)
-# 14/06/2015 - 1.31   - Fenix     - override OnClientuserinfochanged from Iourt1Parser: provide some more verbose logging
-#                                   and correctly set racefree client attribute
-# 29/06/2015 - 1.32   - Fenix     - fixed onSay regular expression not parsing lines with empty say text
-# 30/06/2015 - 1.33   - Fenix     - get client auth login from Clientuserinfo line if available
-#                                 - removed notoriety attribute in Iourt42Client: useless in UrT4.2
-#                                 - improved logging
-# 21/07/2015 - 1.34   - Fenix     - added a patch which deny connection to clients whose nickname is longer than 32
-#                                   characters (read more: https://github.com/BigBrotherBot/big-brother-bot/issues/346)
-# 26/07/2015 - 1.35   - Fenix     - queue EVT_GAME_ROUND_END when survivor winner is triggered
+# -*- coding: utf-8 -*-
+
+# ################################################################### #
+#                                                                     #
+#  BigBrotherBot(B3) (www.bigbrotherbot.net)                          #
+#  Copyright (C) 2005 Michael "ThorN" Thornton                        #
+#                                                                     #
+#  This program is free software; you can redistribute it and/or      #
+#  modify it under the terms of the GNU General Public License        #
+#  as published by the Free Software Foundation; either version 2     #
+#  of the License, or (at your option) any later version.             #
+#                                                                     #
+#  This program is distributed in the hope that it will be useful,    #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of     #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the       #
+#  GNU General Public License for more details.                       #
+#                                                                     #
+#  You should have received a copy of the GNU General Public License  #
+#  along with this program; if not, write to the Free Software        #
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA      #
+#  02110-1301, USA.                                                   #
+#                                                                     #
+# ################################################################### #
 
 import b3
 import re
@@ -110,8 +34,8 @@ from b3.parsers.iourt41 import Iourt41Parser
 from b3.plugins.spamcontrol import SpamcontrolPlugin
 
 
-__author__ = 'Courgette, Fenix'
-__version__ = '1.35'
+__author__ = 'Courgette, Fenix, ptitbigorneau'
+__version__ = '0.2'
 
     
 class Iourt43Client(Client):
@@ -456,14 +380,10 @@ class Iourt43Parser(Iourt41Parser):
     #   2     0   19 ^1XLR^78^8^9or        0 145.99.135.227:27960  41893  8000  # player with a live ping
     #   4     0 CNCT Dz!k^7              450 83.175.191.27:64459   50308 20000  # connecting player
     #   9     0 ZMBI ^7                 1900 81.178.80.68:27960    10801  8000  # zombies (need to be disconnected!)
-    _regPlayer = re.compile(r'^(?P<slot>[0-9]+)\s+'
-                            r'(?P<score>[0-9-]+)\s+'
-                            r'(?P<ping>[0-9]+|CNCT|ZMBI)\s+'
-                            r'(?P<name>.*?)\s+'
-                            r'(?P<last>[0-9]+)\s+'
-                            r'(?P<ip>[0-9.]+):(?P<port>[0-9-]+)\s+'
-                            r'(?P<qport>[0-9]+)\s+'
-                            r'(?P<rate>[0-9]+)$', re.IGNORECASE)
+    _regPlayer = re.compile(r'^\s*(?P<slot>[0-9]+)\s+(?P<score>[0-9-]+)\s+'
+                            r'(?P<ping>[0-9]+|CNCT|ZMBI)\s+(?P<name>.*?)\s+'
+                            r'(?P<last>[0-9]+)\s+(?P<ip>.*)\s+'
+                            r'(?P<qport>[0-9]+)\s+(?P<rate>[0-9]+)$', re.IGNORECASE)
 
     _reColor = re.compile(r'(\^\d)')
 
@@ -476,11 +396,13 @@ class Iourt43Parser(Iourt41Parser):
                                r'R:(?P<RedScore>.+)\s+'
                                r'B:(?P<BlueScore>.+)$', re.IGNORECASE)
 
-    _rePlayerScore = re.compile(r'^(?P<slot>[0-9]+): '
-                                r'(?P<name>.*) '
-                                r'(?P<team>RED|BLUE|SPECTATOR|FREE) '
-                                r'k:(?P<kill>[0-9]+) d:(?P<death>[0-9]+) ping:(?P<ping>[0-9]+|CNCT|ZMBI)( '
-                                r'(?P<ip>[0-9.]+):(?P<port>[0-9-]+))?$', re.IGNORECASE)
+    _rePlayerScore = re.compile(r'^(?P<slot>[0-9]+):(?P<name>.*)\s+'
+                                r'TEAM:(?P<team>RED|BLUE|SPECTATOR|FREE)\s+'
+                                r'KILLS:(?P<kill>[0-9]+)\s+'
+                                r'DEATHS:(?P<death>[0-9]+)\s+'
+                                r'ASSISTS:(?P<assist>[0-9]+)\s+'
+                                r'PING:(?P<ping>[0-9]+|CNCT|ZMBI)\s+'
+                                r'AUTH:(?P<auth>.*)\s+IP:(?P<ip>.*)$', re.IGNORECASE)
 
     # /rcon auth-whois replies patterns
     # 'auth: id: 0 - name: ^7Courgette - login: courgette - notoriety: serious - level: -1  \n'
@@ -854,8 +776,13 @@ class Iourt43Parser(Iourt41Parser):
                             # see issue xlr8or/big-brother-bot#87 - ip can be missing
                             self.debug("Missing ip: trying to get ip with 'status'")
                             plist = self.getPlayerList()
-                            client_data = plist[bclient['cid']]
-                            bclient['ip'] = client_data['ip']
+                            data = plist[bclient['cid']]
+                            ip = data['ip']
+                            if ip in {'loopback', 'localhost'}:
+                                ip = '127.0.0.1'
+                            elif ':' in ip:
+                                ip = ip.split(':')[0]
+                            bclient['ip'] = ip
                         except Exception, err:
                             bclient['ip'] = ''
                             self.warning("Failed to get client %s ip address" % bclient['cid'], err)
@@ -1349,26 +1276,14 @@ class Iourt43Parser(Iourt41Parser):
         Return a B3 team given the team value.
         :param team: The team value
         """
-        if str(team).lower() == 'red' or str(team).lower() == 'r':
-            team = 1
-        elif str(team).lower() == 'blue' or str(team).lower() == 'b':
-            team = 2
-        elif str(team).lower() == 'spectator' or str(team).lower() == 's':
-            team = 3
-        elif str(team).lower() == 'free' or str(team).lower() == 'f':
-            team = -1  # will fall back to b3.TEAM_UNKNOWN
-
-        team = int(team)
-        if team == 1:
-            result = b3.TEAM_RED
-        elif team == 2:
-            result = b3.TEAM_BLUE
-        elif team == 3:
-            result = b3.TEAM_SPEC
-        else:
-            result = b3.TEAM_UNKNOWN
-
-        return result
+        match = str(team).lower()
+        if match in {'red', 'r'}:
+            return b3.TEAM_RED
+        if match in {'blue', 'b'}:
+            return b3.TEAM_BLUE
+        if match in {'spectator', 's'}:
+            return b3.TEAM_SPEC
+        return b3.TEAM_UNKNOWN
 
     def queryClientFrozenSandAccount(self, cid):
         """
