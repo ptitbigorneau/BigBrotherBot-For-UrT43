@@ -1271,19 +1271,6 @@ class Iourt43Parser(Iourt41Parser):
     #                                                                                                                  #
     ####################################################################################################################
     
-    def getTeam(self, team):
-        """
-        Return a B3 team given the team value.
-        :param team: The team value
-        """
-        match = str(team).lower()
-        if match in {'red', 'r'}:
-            return b3.TEAM_RED
-        if match in {'blue', 'b'}:
-            return b3.TEAM_BLUE
-        if match in {'spectator', 's'}:
-            return b3.TEAM_SPEC
-        return b3.TEAM_UNKNOWN
 
     def queryClientFrozenSandAccount(self, cid):
         """
