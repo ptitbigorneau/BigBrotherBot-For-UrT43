@@ -1209,6 +1209,7 @@ class Iourt41Parser(AbstractParser):
         Return a B3 team given the team value.
         :param team: The team value
         """
+
         if str(team).lower() == 'red':
             team = 1
         elif str(team).lower() == 'blue':

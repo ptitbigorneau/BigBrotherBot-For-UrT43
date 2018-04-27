@@ -571,20 +571,21 @@ class Poweradminurt43Plugin(Poweradminurt41Plugin):
         try:
             self._teamred = 0
             self._teamblue = 0
-
+            testbot = False
             data = self.console.write('players')
+    
             for line in data.split('\n')[3:]:
-                #m = re.match(self.console._rePlayerScore, line.strip())
-                #if m:
-                    #if m.group('team').upper() == 'RED':
-                        #self._teamred += 1
-                    #elif m.group('team').upper() == 'BLUE':
-                        #self._teamblue += 1
                 if "TEAM:RED" in line:
                     self._teamred += 1
                 elif "TEAM:BLUE" in line:
                     self._teamblue += 1
+                elif "[connecting]" in line:
+                    testbot = True
 
+            if testbot:
+                self._teamred = len(self.console.getCvar('g_redteamlist').getString())
+                self._teamblue = len(self.console.getCvar('g_blueteamlist').getString())
             return True
+			
         except Exception:
             return False
