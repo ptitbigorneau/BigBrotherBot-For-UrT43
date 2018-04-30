@@ -571,25 +571,29 @@ class Poweradminurt43Plugin(Poweradminurt41Plugin):
         try:
             self._teamred = 0
             self._teamblue = 0
-            testbot = False
+            
             data = self.console.write('players')
-    
-            for line in data.split('\n')[3:]:
-                if "TEAM:RED" in line:
-                    self._teamred += 1
-                elif "TEAM:BLUE" in line:
-                    self._teamblue += 1
-                elif "[connecting]" in line:
-                    testbot = True
+			
+            if "[connecting]" not in data:
 
-            if testbot:
+                for line in data.split('\n')[7:]:
+                    if "TEAM:" in line:
+                        if  line.split(" ")[1].split(":")[0] == "TEAM":
+
+                            if line.split(" ")[1].split(":")[1] == "RED":
+                                self._teamred += 1
+                            if line.split(" ")[1].split(":")[1] == "BLUE":
+                                self._teamblue += 1
+				
+            else:
                 self._teamred = len(self.console.getCvar('g_redteamlist').getString())
                 self._teamblue = len(self.console.getCvar('g_blueteamlist').getString())
+            
             return True
-			
+            
         except Exception:
             return False
-			
+            
     def teambalance(self):
         """
         Balance current teams.
@@ -641,7 +645,7 @@ class Poweradminurt43Plugin(Poweradminurt41Plugin):
 
                     listplayers = self.console.write('players')
                     teamred = self.console.getCvar('g_redteamlist').getString()
-                    teamblue = self.console.getCvar('g_blueteamlist').getString()					
+                    teamblue = self.console.getCvar('g_blueteamlist').getString()                    
 
                     for c in clients:
                         if not c.isvar(self, 'teamtime'):
@@ -652,7 +656,7 @@ class Poweradminurt43Plugin(Poweradminurt41Plugin):
                             self.verbose('client variable teamtime set to: %s' % c.var(self, 'teamtime').value)
                         
                         cteam = c.team
-						
+                        
                         if cteam == -1:
                             cteam = self.RecheckTeam(c, listplayers, teamred, teamblue)
 
@@ -693,23 +697,29 @@ class Poweradminurt43Plugin(Poweradminurt41Plugin):
             self._balancing = False
 
         return True
-		
+        
     def RecheckTeam(self, client, listplayers, teamred, teamblue):
-	
+    
         slotstoletters = {0:'A', 1:'B' , 2:'C', 3:'D', 4:'E', 5:'F', 6:'G', 7:'H', 8:'I', 9:'J', 10:'K', 11:'L', 12:'M', 13:'N', 14:'O', 15:'P', 16:'Q', 17:'R', 18:'S', 19:'T', 20:'U', 21:'V', 22:'W', 23:'X', 24:'Y', 25:'Z'}
-		
-        for line in listplayers.split('\n')[3:]:
+        
+        for line in listplayers.split('\n')[7:]:
 
-            if client.cid == line.split(':')[0]:
+            if line.split(" ")[0] != "[connecting]":
+            
+                if client.cid == line.split(':')[0]:
+                    
+                    if "TEAM:" in line:
 
-                if "TEAM:RED" in line:
-                    return b3.TEAM_RED
-                elif "TEAM:BLUE" in line:
-                    return b3.TEAM_BLUE
-                elif "TEAM:SPECTATOR" in line:
-                    return b3.TEAM_SPEC
-                elif "TEAM:FREE" in line:
-                    return b3.TEAM_FREE
+                        if line.split(" ")[1].split(":")[0] == "TEAM":
+
+                            if line.split(" ")[1].split(":")[1] == "RED":
+                               return b3.TEAM_RED
+                            elif line.split(" ")[1].split(":")[1] == "BLUE":
+                               return b3.TEAM_BLUE
+                            elif line.split(" ")[1].split(":")[1] == "SPECTATOR":
+                               return b3.TEAM_SPEC
+                            elif line.split(" ")[1].split(":")[1] == "FREE":
+                               return b3.TEAM_FREE
                 
         teamred = self.console.getCvar('g_redteamlist').getString()
         teamblue = self.console.getCvar('g_blueteamlist').getString()
