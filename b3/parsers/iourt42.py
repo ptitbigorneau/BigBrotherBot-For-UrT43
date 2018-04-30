@@ -294,11 +294,6 @@ class Iourt42Parser(Iourt41Parser):
         # ClientSpawn: 0
         # ClientMelted: 1
         re.compile(r'^(?P<action>Client(Melted|Spawn)):\s(?P<cid>[0-9]+)$', re.IGNORECASE),
-		
-        #ClientDead: 1 452.554 785.544 451455 
-        re.compile(r'^(?P<action>ClientDead):\s(?P<cid>[0-9]+)\s(?P<x>-?\d+(?:\.\d+)?)\s(?P<y>-?\d+(?:\.\d+)?)\s(?P<time>[0-9]+)$', re.IGNORECASE),
-        #ClientAlive: 1 452.554 785.544 452444
-        re.compile(r'^(?P<action>ClientAlive):\s(?P<cid>[0-9]+)\s(?P<x>-?\d+(?:\.\d+)?)\s(?P<y>-?\d+(?:\.\d+)?)\s(?P<time>[0-9]+)$', re.IGNORECASE),
 
         # Generated with ioUrbanTerror v4.1:
         # Hit: 12 7 1 19: BSTHanzo[FR] hit ercan in the Helmet
@@ -1039,29 +1034,6 @@ class Iourt42Parser(Iourt41Parser):
 
         target.state = b3.STATE_ALIVE
         return self.getEvent('EVT_CLIENT_THAWOUT_FINISHED', client=client, target=target)
-		
-    def OnClientalive(self, action, data, match=None):
-        cid = match.group('cid')
-        x = float(match.group('x'))
-        y = float(match.group('y'))
-        time = match.group('time')
-        client = self.getByCidOrJoinPlayer(cid)
-        if not client:
-            self.debug('No client found')
-            return None
-
-        return Event(self.EVT_CLIENT_ALIVE, client=client, data=dict(x=x, y=y , time=time))
-		
-    def OnClientdead(self, action, data, match=None):
-        cid = match.group('cid')
-        x = float(match.group('x'))
-        y = float(match.group('y'))
-        time = match.group('time')
-        client = self.getByCidOrJoinPlayer(cid)
-        if not client:
-            self.debug('No client found')
-            return None
-        return Event(self.EVT_CLIENT_DEAD, client=client, data=dict(x=x, y=y , time=time))
 
     ####################################################################################################################
     #                                                                                                                  #
