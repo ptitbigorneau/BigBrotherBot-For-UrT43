@@ -589,3 +589,134 @@ class Poweradminurt43Plugin(Poweradminurt41Plugin):
 			
         except Exception:
             return False
+			
+    def teambalance(self):
+        """
+        Balance current teams.
+        """
+        if self.isEnabled() and not self._balancing and not self._matchmode:
+            # set balancing flag
+            self._balancing = True
+            self.verbose('checking for balancing')
+
+            if not self.countteams():
+                self._balancing = False
+                self.warning('aborting teambalance: counting teams failed!')
+                return False
+
+            if abs(self._teamred - self._teamblue) <= self._teamdiff:
+                # teams are balanced
+                self._teamsbalanced = True
+                self.verbose('teambalance: teams are balanced, '
+                             'red: %s, blue: %s (diff: %s)' % (self._teamred, self._teamblue, self._teamdiff))
+                # done balancing
+                self._balancing = False
+                return True
+            else:
+                #teams are not balanced
+                self._teamsbalanced = False
+                self.verbose('teambalance: teams are NOT balanced, '
+                             'red: %s, blue: %s (diff: %s)' % (self._teamred, self._teamblue, self._teamdiff))
+                if self._announce == 1:
+                    self.console.write('say Autobalancing Teams!')
+                elif self._announce == 2:
+                    self.console.write('bigtext "Autobalancing Teams!"')
+
+                if self._teamred > self._teamblue:
+                    newteam = 'blue'
+                    oldteam = b3.TEAM_RED
+                else:
+                    newteam = 'red'
+                    oldteam = b3.TEAM_BLUE
+
+                self.verbose('smaller team is: %s' % newteam)
+
+                # endless loop protection
+                count = 25
+                while abs(self._teamred - self._teamblue) > self._teamdiff and count > 0:
+                    stime = self.console.upTime()
+                    self.verbose('uptime bot: %s' % stime)
+                    forceclient = None
+                    clients = self.console.clients.getList()
+
+                    listplayers = self.console.write('players')
+                    teamred = self.console.getCvar('g_redteamlist').getString()
+                    teamblue = self.console.getCvar('g_blueteamlist').getString()					
+
+                    for c in clients:
+                        if not c.isvar(self, 'teamtime'):
+                            self.debug('client has no variable teamtime')
+                            # 10/22/2008 - 1.4.0b11 - mindriot
+                            # store the time of teamjoin for autobalancing purposes
+                            c.setvar(self, 'teamtime', self.console.time())
+                            self.verbose('client variable teamtime set to: %s' % c.var(self, 'teamtime').value)
+                        
+                        cteam = c.team
+						
+                        if cteam == -1:
+                            cteam = self.RecheckTeam(c, listplayers, teamred, teamblue)
+
+                        if self.console.time() - c.var(self, 'teamtime').value < stime and \
+                           cteam == oldteam and c.maxLevel < self._tmaxlevel and not c.isvar(self, 'paforced'):
+                            forceclient = c.cid
+                            stime = self.console.time() - c.var(self, 'teamtime').value
+
+                    if forceclient:
+                        if newteam:
+                            self.verbose('forcing client: %s to team: %s' % (forceclient, newteam))
+                            self.console.write('forceteam %s %s' % (forceclient, newteam))
+                        else:
+                            self.debug('no new team to force to')
+                    else:
+                        self.debug('no client to force')
+
+                    count -= 1
+                    # recount the teams... do we need to balance once more?
+                    if not self.countteams():
+                        self._balancing = False
+                        self.error('aborting teambalance: counting teams failed!')
+                        return False
+
+                    # 10/28/2008 - 1.4.0b13 - mindriot
+                    self.verbose('teambalance: red: %s, blue: %s (diff: %s)' % (self._teamred, self._teamblue, self._teamdiff))
+
+                    if self._teamred > self._teamblue:
+                        newteam = 'blue'
+                        oldteam = b3.TEAM_RED
+                    else:
+                        newteam = 'red'
+                        oldteam = b3.TEAM_BLUE
+
+                    self.verbose('smaller team is: %s' % newteam)
+
+            # done balancing
+            self._balancing = False
+
+        return True
+		
+    def RecheckTeam(self, client, listplayers, teamred, teamblue):
+	
+        slotstoletters = {0:'A', 1:'B' , 2:'C', 3:'D', 4:'E', 5:'F', 6:'G', 7:'H', 8:'I', 9:'J', 10:'K', 11:'L', 12:'M', 13:'N', 14:'O', 15:'P', 16:'Q', 17:'R', 18:'S', 19:'T', 20:'U', 21:'V', 22:'W', 23:'X', 24:'Y', 25:'Z'}
+		
+        for line in listplayers.split('\n')[3:]:
+
+            if client.cid == line.split(':')[0]:
+
+                if "TEAM:RED" in line:
+                    return b3.TEAM_RED
+                elif "TEAM:BLUE" in line:
+                    return b3.TEAM_BLUE
+                elif "TEAM:SPECTATOR" in line:
+                    return b3.TEAM_SPEC
+                elif "TEAM:FREE" in line:
+                    return b3.TEAM_FREE
+                
+        teamred = self.console.getCvar('g_redteamlist').getString()
+        teamblue = self.console.getCvar('g_blueteamlist').getString()
+
+        if slotstoletters[int(client.cid)] in teamred:
+            return b3.TEAM_RED
+        elif slotstoletters[int(client.cid)] in teamblue:
+            return b3.TEAM_BLUE
+        else:
+            return b3.TEAM_SPEC

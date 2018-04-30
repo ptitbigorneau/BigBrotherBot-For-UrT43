@@ -694,15 +694,6 @@ class Iourt43Parser(Iourt41Parser):
     #                                                                                                                  #
     ####################################################################################################################
     
-    def OnClientbegin(self, action, data, match=None):
-        # we get user info in two parts:
-        # 19:42.36 ClientBegin: 4
-
-        client = self.getByCidOrJoinPlayer(data)
-        if client:
-            self.GetClientTeam(client)
-            return b3.events.Event(self.getEventID('EVT_CLIENT_JOIN'), data=data, client=client)
-
     def OnClientuserinfo(self, action, data, match=None):
         # 2 \ip\145.99.135.227:27960\challenge\-232198920\qport\2781\protocol\68\battleye\1\name\[SNT]^1XLR^78or..
         # 0 \gear\GMIORAA\team\blue\skill\5.000000\characterfile\bots/ut_chicken_c.c\color\4\sex\male\race\2\snaps\20\..
@@ -1455,24 +1446,3 @@ class Iourt43Parser(Iourt41Parser):
         b3.clients.Clients.newClient = newClient
         b3.clients.Clients.getByMagic = newGetByMagic
 		
-    def GetClientTeam(self, data):
-	
-        rcondata = self.write('players')
-		
-        if not rcondata:
-            return
-			
-        for line in rcondata.split('\n')[3:]:
-
-            if data.cid == line.split(':')[0]:
-
-                if "TEAM:RED" in line:
-                    setattr(data, 'team', b3.TEAM_RED)
-                elif "TEAM:BLUE" in line:
-                    setattr(data, 'team', b3.TEAM_BLUE)
-                elif "TEAM:SPECTATOR" in line:
-                    setattr(data, 'team', b3.TEAM_SPEC)
-                elif "TEAM:FREE" in line:
-                    setattr(data, 'team', b3.TEAM_FREE)
-                else:
-                    setattr(data, 'team', b3.TEAM_UNKNOWN)
